@@ -1,0 +1,28 @@
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FoodVisual } from "@/components/kitchen/FoodVisual";
+import { getFreshnessVisualState, type KitchenItemData } from "@/lib/foodVisuals";
+import type { StorageMethod } from "@/types/pantry";
+import { updatePantryItem } from "@/lib/pantryActions";
+
+export function ItemDetailModal({ item, onClose, actionsEnabled, onItemAction }: { item: KitchenItemData | null; onClose: () => void; actionsEnabled: boolean; onItemAction?: (action:"consumed"|"frozen"|"discarded",item:KitchenItemData)=>void }) {
+  const router = useRouter(); const [busy, setBusy] = useState(false); const [error, setError] = useState("");
+  useEffect(() => { if (!item) return; const key = (e: KeyboardEvent) => e.key === "Escape" && onClose(); document.addEventListener("keydown", key); document.body.style.overflow = "hidden"; return () => { document.removeEventListener("keydown", key); document.body.style.overflow = ""; }; }, [item, onClose]);
+  if (!item) return null;
+  const visual = getFreshnessVisualState(item.freshness.status);
+  async function update(action: string, storageMethod?: StorageMethod) {
+    setBusy(true); setError("");
+    try { await updatePantryItem(item!.id, action as "storage", { storageMethod }); }
+    catch { setError("We couldn't update this item. Please try again."); setBusy(false); return; }
+    setBusy(false); onClose(); router.refresh();
+  }
+  return <div className="modal-backdrop" role="presentation" onMouseDown={(e)=>e.target===e.currentTarget&&onClose()}><section role="dialog" aria-modal="true" aria-labelledby="item-title" className="item-modal">
+    <button autoFocus onClick={onClose} className="absolute right-5 top-5 grid size-10 place-items-center rounded-full bg-[#f1f0ea] text-lg font-bold" aria-label="Close item details">×</button>
+    <div className="flex items-center gap-4 pr-12"><FoodVisual category={item.food_category} name={item.normalized_name} size="lg"/><div><span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${visual.badge}`}>{item.freshness.status}</span><h2 id="item-title" className="mt-2 text-3xl font-black tracking-tight">{item.normalized_name}</h2><p className="mt-1 text-sm text-[#77827b]">Receipt: {item.raw_name}</p></div></div>
+    <div className="mt-7 rounded-2xl bg-[#f5f3ec] p-5"><div className="flex items-end justify-between"><div><p className="text-xs font-bold uppercase tracking-wider text-[#79837d]">Freshness priority</p><p className="mt-1 text-3xl font-black">{item.freshness.riskScore ?? "—"}<span className="text-base text-[#77827b]">{item.freshness.riskScore === null ? "" : "%"}</span></p></div><p className="text-right text-sm font-bold text-[#66736b]">Bought {item.freshness.elapsedDays} day{item.freshness.elapsedDays===1?"":"s"} ago</p></div><div className="mt-4 h-2 overflow-hidden rounded-full bg-[#dfe3df]"><div className={`h-full rounded-full ${visual.dot}`} style={{width:`${item.freshness.riskScore ?? 0}%`}}/></div>{item.freshness.windowExceeded&&<p className="mt-3 text-xs font-bold text-[#a54520]">Estimated storage window exceeded</p>}</div>
+    <dl className="mt-6 grid grid-cols-2 gap-x-5 gap-y-4 text-sm"><div><dt className="text-[#7b857e]">Purchase date</dt><dd className="mt-1 font-bold">{item.purchase_date}</dd></div><div><dt className="text-[#7b857e]">Quantity</dt><dd className="mt-1 font-bold">{item.quantity}{item.unit ? ` · ${item.unit}`:""}</dd></div><div><dt className="text-[#7b857e]">Price</dt><dd className="mt-1 font-bold">{item.price === null ? "Not captured" : `$${item.price.toFixed(2)}`}</dd></div><div><dt className="text-[#7b857e]">Confidence</dt><dd className="mt-1 font-bold">{Math.round(item.extraction_confidence*100)}%</dd></div><div><dt className="text-[#7b857e]">Estimated window</dt><dd className="mt-1 font-bold">{item.shelf_life_max_days ? `${item.shelf_life_min_days}–${item.shelf_life_max_days} days` : "No guidance"}</dd></div><div><dt className="text-[#7b857e]">Guidance source</dt><dd className="mt-1 text-xs font-bold">Demo subset · verify with FoodKeeper</dd></div></dl>
+    {actionsEnabled && <div className="mt-7 border-t pt-6"><label className="text-xs font-black uppercase tracking-wider text-[#6d7971]" htmlFor="storage-method">Storage assumption</label><select id="storage-method" value={item.storage_method} disabled={busy} onChange={(e)=>update("storage",e.target.value as StorageMethod)} className="mt-2 w-full rounded-xl border border-[#cad2cc] bg-white px-4 py-3 font-bold capitalize"><option value="refrigerator">Refrigerator</option><option value="freezer">Freezer</option><option value="pantry">Pantry</option><option value="counter">Counter</option><option value="unknown">Unknown</option></select><div className="mt-4 grid grid-cols-3 gap-2"><button disabled={busy} onClick={()=>{onClose();onItemAction?.("consumed",item)}} className="modal-action bg-[#e5f3ea] text-[#276448]">✓ Consumed</button><button disabled={busy} onClick={()=>{onClose();onItemAction?.("frozen",item)}} className="modal-action bg-[#e8f1f5] text-[#386476]">❄ Frozen</button><button disabled={busy} onClick={()=>{onClose();onItemAction?.("discarded",item)}} className="modal-action bg-[#faece6] text-[#934a31]">Discarded</button></div>{error&&<p role="alert" className="mt-3 text-sm font-bold text-[#a63328]">{error}</p>}</div>}
+    <p className="mt-5 text-xs leading-5 text-[#7d8881]">Freshness estimates are guidance only—not a determination that food is safe or unsafe. Storage and handling conditions may change this estimate.</p>
+  </section></div>;
+}

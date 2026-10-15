@@ -1,0 +1,31 @@
+import type { FreshnessStatus, StorageMethod } from "@/types/pantry";
+
+export type KitchenZone = "fridge" | "freezer" | "pantry" | "counter";
+export type FoodVisualKey = "apple" | "banana" | "orange" | "grapes" | "strawberry" | "blueberry" | "raspberry" | "kiwi" | "watermelon" | "lemon" | "milk" | "eggs" | "bread" | "leafy" | "broccoli" | "carrot" | "tomato" | "cheese" | "yogurt" | "chicken" | "fish" | "rice" | "pasta" | "cereal" | "avocado" | "meat" | "vegetable" | "fruit" | "meal" | "tin" | "generic";
+export interface FoodVisualDescriptor { key: FoodVisualKey; label: string; palette: [string, string]; accent: string; fallback: string }
+const visual = (key: FoodVisualKey, label: string, palette: [string, string], accent: string, fallback: string): FoodVisualDescriptor => ({ key, label, palette, accent, fallback });
+
+const namedVisuals: Array<[RegExp, FoodVisualDescriptor]> = [
+  [/blueberr/i, visual("blueberry", "Blueberries", ["#dce5ff", "#b8c8fb"], "#4456a6", "🫐")], [/raspberr/i, visual("raspberry", "Raspberries", ["#ffe0e9", "#ffc2d5"], "#bd305e", "🍓")], [/strawberr/i, visual("strawberry", "Strawberry", ["#ffe0dc", "#ffc4bd"], "#d94842", "🍓")],
+  [/watermelon/i, visual("watermelon", "Watermelon", ["#ddf4de", "#bce8c1"], "#e65062", "🍉")], [/kiwi/i, visual("kiwi", "Kiwi", ["#e9f1cf", "#d7e5ab"], "#76943b", "🥝")], [/grape/i, visual("grapes", "Grapes", ["#eee4fa", "#dac4ef"], "#77509a", "🍇")],
+  [/banana/i, visual("banana", "Banana", ["#fff5bf", "#ffe98a"], "#d5aa21", "🍌")], [/orange|mandarin|tangerine/i, visual("orange", "Orange", ["#ffebca", "#ffd898"], "#ed8b24", "🍊")], [/lemon/i, visual("lemon", "Lemon", ["#fff8c8", "#f7ec8b"], "#d1b92d", "🍋")], [/apple/i, visual("apple", "Apple", ["#ffe1dd", "#ffc5bd"], "#ca493e", "🍎")], [/avocado/i, visual("avocado", "Avocado", ["#e5efcf", "#c8dda4"], "#668a3b", "🥑")],
+  [/milk|cream/i, visual("milk", "Milk carton", ["#e1f1f7", "#c5e3ef"], "#4f91aa", "🥛")], [/egg/i, visual("eggs", "Egg carton", ["#f5ead7", "#e7d2b3"], "#c59656", "🥚")], [/chicken|poultry/i, visual("chicken", "Chicken pack", ["#ffe5df", "#facbc1"], "#d47763", "🍗")],
+  [/spinach|lettuce|kale|bok choy|leaf/i, visual("leafy", "Leafy greens", ["#e0f1dd", "#bfdfb9"], "#438052", "🥬")], [/broccoli/i, visual("broccoli", "Broccoli", ["#dff0dc", "#beddb9"], "#3f7d4a", "🥦")], [/carrot/i, visual("carrot", "Carrot", ["#ffead1", "#ffd1a0"], "#e5792e", "🥕")], [/tomato/i, visual("tomato", "Tomato", ["#ffe0da", "#ffc3b8"], "#d74a3e", "🍅")],
+  [/cheese/i, visual("cheese", "Cheese block", ["#fff2c5", "#f8dc77"], "#d5a62f", "🧀")], [/yogurt|yoghurt/i, visual("yogurt", "Yogurt cup", ["#f5e6f2", "#e8cbe2"], "#a76091", "🥣")], [/salmon|tuna|fish|cod|tilapia/i, visual("fish", "Fish", ["#dff0f4", "#bcdde6"], "#4c8da1", "🐟")],
+  [/bread|loaf|bun|baguette/i, visual("bread", "Bread loaf", ["#f8e8cc", "#eac99b"], "#a96f38", "🍞")], [/rice/i, visual("rice", "Rice bowl", ["#f1eee3", "#ded9c8"], "#8a7c62", "🍚")], [/pasta|noodle|spaghetti/i, visual("pasta", "Pasta", ["#fff0c6", "#f4d986"], "#c79329", "🍝")], [/cereal|oat|granola/i, visual("cereal", "Cereal box", ["#f8e0c5", "#edc18f"], "#b9703b", "🥣")],
+];
+const categoryVisuals: Record<string, FoodVisualDescriptor> = {
+  raw_poultry: visual("chicken", "Poultry", ["#ffe5df", "#facbc1"], "#d47763", "🍗"), raw_meat: visual("meat", "Meat", ["#f6dddd", "#e8baba"], "#a94c4d", "🥩"), fish: visual("fish", "Fish", ["#dff0f4", "#bcdde6"], "#4c8da1", "🐟"), leafy_vegetables: visual("leafy", "Leafy greens", ["#e0f1dd", "#bfdfb9"], "#438052", "🥬"), vegetables: visual("vegetable", "Vegetable", ["#e5f1dc", "#cadfb8"], "#5c8449", "🥕"), fruit: visual("fruit", "Fruit", ["#f6e2d5", "#ebc3ad"], "#b8674d", "🍎"), dairy: visual("milk", "Dairy", ["#e1f1f7", "#c5e3ef"], "#4f91aa", "🥛"), eggs: visual("eggs", "Eggs", ["#f5ead7", "#e7d2b3"], "#c59656", "🥚"), bread: visual("bread", "Bread", ["#f8e8cc", "#eac99b"], "#a96f38", "🍞"), cooked_food: visual("meal", "Prepared food", ["#f3e1cf", "#e3c3a2"], "#9d6c41", "🍲"), dry_goods: visual("tin", "Pantry food", ["#e9e5d6", "#d5ceba"], "#7c7562", "🥫"), unknown: visual("generic", "Food item", ["#ebece7", "#d8ddd6"], "#6f7c73", "🍽️"),
+};
+export function getFoodVisual(normalizedName: string, category: string): FoodVisualDescriptor { return namedVisuals.find(([pattern]) => pattern.test(normalizedName))?.[1] ?? categoryVisuals[category] ?? categoryVisuals.unknown; }
+export function getFoodColorPalette(normalizedName: string, category: string) { return getFoodVisual(normalizedName, category).palette; }
+export function getFoodAccent(normalizedName: string, category: string) { return getFoodVisual(normalizedName, category).accent; }
+export function getStorageZone(storage: string | null | undefined): KitchenZone { if (storage === "refrigerator") return "fridge"; if (storage === "freezer") return "freezer"; if (storage === "counter") return "counter"; return "pantry"; }
+export function getFreshnessVisualState(status: FreshnessStatus | string) {
+  if (status === "Check now") return { dot: "bg-[#cf493b]", badge: "bg-[#fff0ec] text-[#a52f25]", ring: "ring-[#df6b5f]/55", symbol: "!", friendly: "Needs a little love" };
+  if (status === "High priority") return { dot: "bg-[#ef7846]", badge: "bg-[#fff1e9] text-[#a54520]", ring: "ring-[#ef8c61]/45", symbol: "↑", friendly: "Rescue next" };
+  if (status === "Use soon") return { dot: "bg-[#e6b63b]", badge: "bg-[#fff8dd] text-[#745a13]", ring: "ring-[#e6bd52]/40", symbol: "•", friendly: "Use soon" };
+  if (status === "Fresh") return { dot: "bg-[#3f9871]", badge: "bg-[#eaf7ef] text-[#246749]", ring: "ring-[#5eae89]/30", symbol: "✓", friendly: "Happy & fresh" };
+  return { dot: "bg-[#88948d]", badge: "bg-[#edf0ee] text-[#59655f]", ring: "ring-[#97a29c]/30", symbol: "?", friendly: "Guidance unavailable" };
+}
+export interface KitchenItemData { id: string; normalized_name: string; raw_name: string; food_category: string; quantity: number; unit: string | null; price: number | null; purchase_date: string; storage_method: StorageMethod; extraction_confidence: number; shelf_life_min_days: number | null; shelf_life_max_days: number | null; freshness: { riskScore: number | null; status: FreshnessStatus; elapsedDays: number; windowExceeded: boolean }; }

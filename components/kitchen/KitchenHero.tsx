@@ -1,0 +1,12 @@
+"use client";
+import { FoodVisual } from "@/components/kitchen/FoodVisual";
+import type { KitchenItemData } from "@/lib/foodVisuals";
+import type { RescueMetrics } from "@/lib/rescueMetrics";
+
+export function KitchenHero({ items, metrics, atRisk }: { items: KitchenItemData[]; metrics: RescueMetrics; atRisk: number }) {
+  const urgent = items.find((x)=>(x.freshness.riskScore??0)>=40);
+  const hour = new Date().getHours(); const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  function rescue() { window.open("/api/telegram/open?command=rescue", "_blank", "noopener,noreferrer"); }
+  const score = metrics.rescueScore ?? 0;
+  return <section className="calm-hero"><div className="relative z-10"><p className="eyebrow">{greeting} <span aria-hidden="true">👋</span></p><div className="mt-3 flex flex-wrap items-end justify-between gap-5"><div><h1 className="text-4xl font-black tracking-[-.045em] sm:text-5xl">{atRisk ? `${atRisk} ${atRisk===1?"food could":"foods could"} use some attention.` : "Your kitchen is looking good today."}</h1><p className="mt-3 text-[#66736b]">{urgent ? <><b className="text-[#2b3d32]">{urgent.normalized_name}</b> is first in line. A small save now keeps good food out of the bin.</> : "Everything is comfortably within its estimated freshness window."}</p></div>{urgent&&<button onClick={rescue} className="calm-rescue-button"><FoodVisual category={urgent.food_category} name={urgent.normalized_name} size="sm"/><span><small className="block text-[10px] font-black uppercase tracking-wider opacity-60">Use this first</small><b>{urgent.normalized_name}</b></span><span>→</span></button>}</div><div className="summary-ribbon mt-7"><div className="flex min-w-44 items-center gap-3"><div className="score-ring" style={{background:`conic-gradient(#3d8b63 ${score*3.6}deg,#dfe8e1 0)`}}><span>{metrics.rescueScore===null?"—":`${score}%`}</span></div><div><p className="metric-label">Rescue Score</p><p className="metric-note">{metrics.rescueScore===null?"Complete an outcome to begin":"Used or frozen vs discarded"}</p></div></div><div className="summary-divider"/><div><p className="metric-label">Estimated value rescued</p><p className="metric-value">${metrics.rescuedValue.toFixed(2)}</p><p className="metric-note">${metrics.wasteValue.toFixed(2)} discarded</p></div><div className="summary-divider"/><div><p className="metric-label">At risk today</p><p className="metric-value">{atRisk}</p><p className="metric-note">{atRisk?"Worth a look":"Nothing urgent"}</p></div></div></div></section>;
+}

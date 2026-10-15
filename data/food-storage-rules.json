@@ -1,0 +1,16 @@
+{
+  "_meta": {
+    "label": "DEMO SUBSET — VALUES REQUIRE VERIFICATION AGAINST THE CURRENT USDA FOODKEEPER DATASET",
+    "verified": false,
+    "source": "Demonstration placeholders; do not represent an official USDA import"
+  },
+  "raw_poultry": { "refrigerator": { "min_days": 1, "max_days": 2, "source": "DEMO — verify with USDA FoodKeeper", "verified": false }, "freezer": { "min_days": 180, "max_days": 270, "source": "DEMO — verify with USDA FoodKeeper", "verified": false } },
+  "raw_meat": { "refrigerator": { "min_days": 2, "max_days": 3, "source": "DEMO — verify with USDA FoodKeeper", "verified": false }, "freezer": { "min_days": 120, "max_days": 240, "source": "DEMO — verify with USDA FoodKeeper", "verified": false } },
+  "fish": { "refrigerator": { "min_days": 1, "max_days": 2, "source": "DEMO — verify with USDA FoodKeeper", "verified": false }, "freezer": { "min_days": 90, "max_days": 180, "source": "DEMO — verify with USDA FoodKeeper", "verified": false } },
+  "leafy_vegetables": { "refrigerator": { "min_days": 3, "max_days": 7, "source": "DEMO — verify with USDA FoodKeeper", "verified": false } },
+  "vegetables": { "refrigerator": { "min_days": 5, "max_days": 10, "source": "DEMO — verify with USDA FoodKeeper", "verified": false } },
+  "fruit": { "refrigerator": { "min_days": 5, "max_days": 14, "source": "DEMO — verify with USDA FoodKeeper", "verified": false }, "counter": { "min_days": 2, "max_days": 7, "source": "DEMO — verify with USDA FoodKeeper", "verified": false } },
+  "dairy": { "refrigerator": { "min_days": 5, "max_days": 10, "source": "DEMO — verify with USDA FoodKeeper", "verified": false } },
+  "eggs": { "refrigerator": { "min_days": 21, "max_days": 35, "source": "DEMO — verify with USDA FoodKeeper", "verified": false } },
+  "bread": { "pantry": { "min_days": 3, "max_days": 7, "source": "DEMO — verify with USDA FoodKeeper", "verified": false }, "freezer": { "min_days": 60, "max_days": 90, "source": "DEMO — verify with USDA FoodKeeper", "verified": false } }
+}
