@@ -24,6 +24,10 @@ alter table food_outcomes enable row level security;
 create index if not exists food_outcomes_user_food_idx on food_outcomes(user_id, normalized_name, action_at desc);
 create index if not exists food_outcomes_pantry_item_idx on food_outcomes(pantry_item_id);
 
+-- Remove the legacy constraint before canonicalizing values because it rejects
+-- the new reason names during the update.
+alter table pantry_items drop constraint if exists pantry_items_discard_reason_check;
+
 -- Canonicalize legacy structured reasons without losing existing records.
 update pantry_items set discard_reason = case discard_reason
   when 'forgot' then 'forgot_about_it'
@@ -33,7 +37,6 @@ update pantry_items set discard_reason = case discard_reason
 end
 where discard_reason in ('forgot', 'spoiled', 'disliked');
 
-alter table pantry_items drop constraint if exists pantry_items_discard_reason_check;
 alter table pantry_items add constraint pantry_items_discard_reason_check check (
   discard_reason is null or discard_reason in (
     'forgot_about_it', 'bought_too_much', 'spoiled_before_use',
