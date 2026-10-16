@@ -1,0 +1,39 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { checkListingEligibility } from "@/lib/communityEligibility";
+import type { KitchenItemData } from "@/lib/foodVisuals";
+
+export function ShareNearbyCTA({ items }: { items: KitchenItemData[] }) {
+  const router = useRouter();
+  const [open,setOpen]=useState(false);
+  const eligible=items.filter(item=>checkListingEligibility({
+    foodCategory:item.food_category,
+    condition:"unopened",
+    storageMethod:item.storage_method,
+    refrigerationConfirmed:item.storage_method==="refrigerator",
+  }).eligible);
+
+  function share(item:KitchenItemData) {
+    const params=new URLSearchParams({
+      food:item.normalized_name,
+      category:item.food_category,
+      quantity:String(item.quantity),
+      unit:item.unit??"item",
+      storage:item.storage_method,
+      risk:String(item.freshness.riskScore??""),
+    });
+    router.push(`/community?${params.toString()}`);
+  }
+
+  return <>
+    <section className="mx-auto mt-8 max-w-6xl">
+      <button onClick={()=>setOpen(true)} className="group flex w-full items-center justify-between gap-5 rounded-3xl border border-[#28755740] bg-[#edf5ef] p-5 text-left shadow-[0_12px_35px_rgba(22,75,53,.08)] transition hover:-translate-y-0.5 hover:border-[#287557] hover:shadow-[0_16px_40px_rgba(22,75,53,.13)] sm:p-6">
+        <span><span className="block text-xl font-black text-[#164b35] sm:text-2xl">🤝 Share Nearby</span><span className="mt-1 block text-sm leading-6 text-[#526259] sm:text-base">Have food you won&apos;t use? Offer it to someone nearby before it goes to waste.</span></span>
+        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-[#164b35] text-xl text-white transition group-hover:translate-x-1" aria-hidden="true">→</span>
+      </button>
+    </section>
+    {open&&<div className="modal-backdrop" role="presentation" onMouseDown={event=>event.target===event.currentTarget&&setOpen(false)}><section className="item-modal" role="dialog" aria-modal="true" aria-labelledby="share-nearby-title"><button onClick={()=>setOpen(false)} className="sheet-close" aria-label="Close">×</button><p className="eyebrow">Community Rescue</p><h2 id="share-nearby-title" className="mt-2 text-3xl font-black">Choose food to share</h2><p className="mt-2 text-sm text-[#526259]">Only items that meet the current deterministic sharing rules are shown.</p>{eligible.length?<div className="mt-5 space-y-2">{eligible.map(item=><button key={item.id} onClick={()=>share(item)} className="flex w-full items-center justify-between rounded-2xl border bg-white p-4 text-left transition hover:border-[#287557] hover:bg-[#edf5ef]"><span><b>{item.normalized_name}</b><small className="mt-1 block capitalize text-[#68766e]">{item.quantity} {item.unit??"item"} · {item.storage_method} · {item.freshness.status}</small></span><span className="font-black text-[#287557]">Share →</span></button>)}</div>:<div className="mt-5 rounded-2xl bg-[#f4f1e9] p-4"><b>No eligible pantry items right now.</b><p className="mt-1 text-sm text-[#68766e]">Raw proteins and higher-risk or unknown-storage foods cannot be shared.</p></div>}<p className="mt-5 text-xs leading-5 text-[#7d8881]">Eligibility is checked again before publishing. Exact home locations are never shown publicly.</p></section></div>}
+  </>;
+}

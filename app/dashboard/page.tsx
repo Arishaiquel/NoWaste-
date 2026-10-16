@@ -12,6 +12,7 @@ import { linkedTelegramUserId } from "@/lib/auth/linkedUser";
 import { redirect } from "next/navigation";
 import { isGuestDemo } from "@/lib/guestDemo";
 import { GuestDemoDashboard } from "@/components/GuestDemoDashboard";
+import { ShareNearbyCTA } from "@/components/ShareNearbyCTA";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +46,7 @@ export default async function Dashboard() {
     {!configured ? <div className="card mt-10 p-8"><span className="text-3xl" aria-hidden="true">🍽️</span><h2 className="mt-4 text-2xl font-black">We couldn&apos;t load your kitchen right now.</h2><p className="mt-3 text-[#526259]">Your groceries are still safe in the pantry database. Try the connection again in a moment.</p><a href="/dashboard" className="button mt-5 bg-[#164b35] text-white">Try again</a></div> : <>
       {isDemoMode() && <div className="demo-strip"><DemoControls/></div>}
       <div id="your-kitchen"><KitchenView key={`${kitchenItems.map((item)=>`${item.id}:${item.storage_method}:${item.freshness.riskScore}`).join("|")}:${metrics.rescuedCount}:${metrics.discardedCount}`} items={kitchenItems} metrics={metrics} actionsEnabled/></div>
+      <ShareNearbyCTA items={kitchenItems}/>
       <div className="mx-auto mt-8 max-w-6xl"><RescueProgress metrics={metrics}/></div>
     </>}
   </main>;
