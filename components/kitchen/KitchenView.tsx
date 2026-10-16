@@ -18,6 +18,7 @@ import { getStorageZone, type KitchenItemData } from "@/lib/foodVisuals";
 import { updatePantryItem } from "@/lib/pantryActions";
 import type { RescueMetrics } from "@/lib/rescueMetrics";
 import type { StorageMethod } from "@/types/pantry";
+import { ShareNearbyCTA } from "@/components/ShareNearbyCTA";
 
 type OutcomeAction = "consumed" | "frozen";
 
@@ -71,6 +72,7 @@ export function KitchenView({ items, metrics, actionsEnabled, guestDemo = false 
     <section className={`digital-kitchen ${active?"kitchen-is-dragging":""}`} aria-labelledby="kitchen-title">
       <div className="kitchen-wall" aria-hidden="true"><span className="wall-rail"/><span className="hanging-leaf leaf-one">♧</span><span className="hanging-leaf leaf-two">♧</span></div>
       <h1 id="kitchen-title" className="sr-only">Your interactive digital kitchen</h1>
+      <ShareNearbyCTA items={localItems} kitchen/>
       <div className="kitchen-top"><ConsumptionZone disabled={!actionsEnabled}/><WasteMeter metrics={displayMetrics}/><TrashZone disabled={!actionsEnabled}/></div>
       <div className="kitchen-hint"><span>Grab a food and move it around your kitchen</span><button onClick={()=>{setFocusMode((value)=>!value);if(!focusMode)setBasket(localItems.slice(0,3))}}>{focusMode?"Show everything":"What should I use first?"}</button></div>
       <div className="kitchen-floor"><div className="appliance-slot fridge-slot"><FridgeZone items={zones.fridge} freezerItems={zones.freezer} {...zoneProps}/></div><div className="appliance-slot pantry-slot"><PantryZone items={zones.pantry} {...zoneProps}/></div><RescuePot basket={basket} onRemove={(id)=>setBasket((current)=>current.filter((item)=>item.id!==id))} onMakeMeal={makeMeal} disabled={!actionsEnabled}/></div>
