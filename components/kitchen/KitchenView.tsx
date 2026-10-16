@@ -19,6 +19,7 @@ import { updatePantryItem } from "@/lib/pantryActions";
 import type { RescueMetrics } from "@/lib/rescueMetrics";
 import type { StorageMethod } from "@/types/pantry";
 import { ShareNearbyCTA } from "@/components/ShareNearbyCTA";
+import { checkListingEligibility } from "@/lib/communityEligibility";
 
 type OutcomeAction = "consumed" | "frozen";
 
@@ -52,6 +53,7 @@ export function KitchenView({ items, metrics, actionsEnabled, guestDemo = false 
     catch{celebrate("We couldn't move that item. Please try again.")}
   }
   function addToPot(item:KitchenItemData){setBasket((current)=>current.some((entry)=>entry.id===item.id)?current:[...current,item]);celebrate(`${item.normalized_name} added to the Rescue Pot.`)}
+  function shareNearby(item:KitchenItemData){const eligibility=checkListingEligibility({foodCategory:item.food_category,condition:"unopened",storageMethod:item.storage_method,refrigerationConfirmed:item.storage_method==="refrigerator"});if(!eligibility.eligible){celebrate(eligibility.reason);return}router.push(`/community?food=${encodeURIComponent(item.normalized_name)}&category=${encodeURIComponent(item.food_category)}&quantity=${item.quantity}&unit=${encodeURIComponent(item.unit??"item")}&storage=${encodeURIComponent(item.storage_method)}&risk=${item.freshness.riskScore??""}`)}
   function handleAction(action:FoodSheetAction,item:KitchenItemData){
     setSheetItem(null);
     if(action==="consumed"||action==="frozen")void completeOutcome(action,item);
@@ -59,13 +61,13 @@ export function KitchenView({ items, metrics, actionsEnabled, guestDemo = false 
     else if(action==="pantry")void moveItem(item,"pantry");
     else if(action==="fridge")void moveItem(item,"refrigerator");
     else if(action==="rescue")addToPot(item);
-    else if(action==="share")router.push(`/community?food=${encodeURIComponent(item.normalized_name)}&category=${encodeURIComponent(item.food_category)}&quantity=${item.quantity}&unit=${encodeURIComponent(item.unit??"item")}&storage=${encodeURIComponent(item.storage_method)}&risk=${item.freshness.riskScore??""}`);
+    else if(action==="share")shareNearby(item);
     else setDetailItem(item);
   }
   async function confirmDiscard(reason:string){if(!discarding)return;const item=discarding;try{const result=guestDemo?{price:item.price}:await updatePantryItem(item.id,"discarded",{discardReason:reason});setLocalItems((current)=>current.filter((entry)=>entry.id!==item.id));setBasket((current)=>current.filter((entry)=>entry.id!==item.id));addWasteMetric(result.price);setDiscarding(null);celebrate(`Waste logged${result.price?` · $${Number(result.price).toFixed(2)} discarded`:""}`);if(!guestDemo)router.refresh();}catch{celebrate("We couldn't log that. Please try again.")}}
   function makeMeal(){window.open("/api/telegram/open?command=rescue","_blank","noopener,noreferrer");celebrate(`Recipe request started with ${basket.length} ingredient${basket.length===1?"":"s"}.`)}
   function dragStart(event:DragStartEvent){setActive(localItems.find((item)=>item.id===String(event.active.id))??null)}
-  function dragEnd(event:DragEndEvent){const item=active;setActive(null);if(!item||!event.over)return;const target=String(event.over.id);if(target==="consumed")void completeOutcome("consumed",item);else if(target==="discarded")setDiscarding(item);else if(target==="fridge")void moveItem(item,"refrigerator");else if(target==="freezer")void completeOutcome("frozen",item);else if(target==="pantry")void moveItem(item,"pantry");else if(target==="rescue")addToPot(item)}
+  function dragEnd(event:DragEndEvent){const item=active;setActive(null);if(!item||!event.over)return;const target=String(event.over.id);if(target==="consumed")void completeOutcome("consumed",item);else if(target==="discarded")setDiscarding(item);else if(target==="fridge")void moveItem(item,"refrigerator");else if(target==="freezer")void completeOutcome("frozen",item);else if(target==="pantry")void moveItem(item,"pantry");else if(target==="rescue")addToPot(item);else if(target==="share-nearby")shareNearby(item)}
   const zoneProps={onOpen:setSheetItem,focusMode,priorityIds:focusMode?priorityIds:[],dragEnabled:actionsEnabled};
 
   return <DndContext id="shelfsense-kitchen" sensors={sensors} collisionDetection={closestCenter} onDragStart={dragStart} onDragCancel={()=>setActive(null)} onDragEnd={dragEnd}>
