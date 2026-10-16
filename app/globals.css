@@ -52,7 +52,7 @@ main { min-width: 0; }
 .counter-zone { margin-top: 1.5rem; display: flex; align-items: center; gap: 1.5rem; border: 1px solid #b68b6738; border-radius: 1.5rem; background: linear-gradient(180deg, #eed8b9, #d4ad82); padding: 1.1rem 1.25rem; box-shadow: inset 0 2px #fff7e6, 0 12px 25px #704d3020; }
 .rescue-button { display: flex; align-items: center; gap: .8rem; border-radius: 1.2rem; background: #173f2e; padding: .8rem 1rem; color: white; text-align: left; box-shadow: 0 10px 22px #173f2e32; transition: transform .18s ease, box-shadow .18s ease; cursor: pointer; }
 .rescue-button:hover, .rescue-button:focus-visible { transform: translateY(-2px); box-shadow: 0 15px 28px #173f2e3d; outline: 3px solid #d9f15b; outline-offset: 3px; }
-.modal-backdrop { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; overflow-y: auto; background: #10251a9e; padding: 1rem; backdrop-filter: blur(7px); animation: backdrop-in .18s ease-out; }
+.modal-backdrop { position: fixed; inset: 0; z-index: 1100; display: grid; place-items: center; overflow-y: auto; background: #10251a9e; padding: 1rem; backdrop-filter: blur(7px); animation: backdrop-in .18s ease-out; }
 .item-modal { position: relative; width: min(100%, 34rem); max-height: calc(100vh - 2rem); overflow-y: auto; border-radius: 1.8rem; background: #fffdf8; padding: clamp(1.25rem, 4vw, 2rem); box-shadow: 0 30px 100px #10251a66; animation: modal-in .22s cubic-bezier(.2,.8,.2,1); }
 .modal-action { border-radius: .85rem; padding: .7rem .45rem; font-size: .72rem; font-weight: 900; transition: transform .15s ease, opacity .15s; cursor: pointer; }
 .modal-action:hover { transform: translateY(-1px); }
