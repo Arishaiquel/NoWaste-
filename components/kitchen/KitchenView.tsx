@@ -34,6 +34,7 @@ export function KitchenView({ items, metrics, actionsEnabled, guestDemo = false 
   const [basket,setBasket]=useState<KitchenItemData[]>([]);
   const [toast,setToast]=useState("");
   const [focusMode,setFocusMode]=useState(false);
+  const [shareCandidate,setShareCandidate]=useState<KitchenItemData|null>(null);
   const sensors=useSensors(useSensor(PointerSensor,{activationConstraint:{distance:7}}),useSensor(TouchSensor,{activationConstraint:{delay:180,tolerance:8}}),useSensor(KeyboardSensor));
 
   const closeSheet=useCallback(()=>setSheetItem(null),[]);
@@ -67,14 +68,14 @@ export function KitchenView({ items, metrics, actionsEnabled, guestDemo = false 
   async function confirmDiscard(reason:string){if(!discarding)return;const item=discarding;try{const result=guestDemo?{price:item.price}:await updatePantryItem(item.id,"discarded",{discardReason:reason});setLocalItems((current)=>current.filter((entry)=>entry.id!==item.id));setBasket((current)=>current.filter((entry)=>entry.id!==item.id));addWasteMetric(result.price);setDiscarding(null);celebrate(`Waste logged${result.price?` · $${Number(result.price).toFixed(2)} discarded`:""}`);if(!guestDemo)router.refresh();}catch{celebrate("We couldn't log that. Please try again.")}}
   function makeMeal(){window.open("/api/telegram/open?command=rescue","_blank","noopener,noreferrer");celebrate(`Recipe request started with ${basket.length} ingredient${basket.length===1?"":"s"}.`)}
   function dragStart(event:DragStartEvent){setActive(localItems.find((item)=>item.id===String(event.active.id))??null)}
-  function dragEnd(event:DragEndEvent){const item=active;setActive(null);if(!item||!event.over)return;const target=String(event.over.id);if(target==="consumed")void completeOutcome("consumed",item);else if(target==="discarded")setDiscarding(item);else if(target==="fridge")void moveItem(item,"refrigerator");else if(target==="freezer")void completeOutcome("frozen",item);else if(target==="pantry")void moveItem(item,"pantry");else if(target==="rescue")addToPot(item);else if(target==="share-nearby")shareNearby(item)}
+  function dragEnd(event:DragEndEvent){const item=active;setActive(null);if(!item||!event.over)return;const target=String(event.over.id);if(target==="consumed")void completeOutcome("consumed",item);else if(target==="discarded")setDiscarding(item);else if(target==="fridge")void moveItem(item,"refrigerator");else if(target==="freezer")void completeOutcome("frozen",item);else if(target==="pantry")void moveItem(item,"pantry");else if(target==="rescue")addToPot(item);else if(target==="share-nearby"){const eligibility=checkListingEligibility({foodCategory:item.food_category,condition:"unopened",storageMethod:item.storage_method,refrigerationConfirmed:item.storage_method==="refrigerator"});if(eligibility.eligible)setShareCandidate(item);else celebrate(eligibility.reason)}}
   const zoneProps={onOpen:setSheetItem,focusMode,priorityIds:focusMode?priorityIds:[],dragEnabled:actionsEnabled};
 
   return <DndContext id="shelfsense-kitchen" sensors={sensors} collisionDetection={closestCenter} onDragStart={dragStart} onDragCancel={()=>setActive(null)} onDragEnd={dragEnd}>
     <section className={`digital-kitchen ${active?"kitchen-is-dragging":""}`} aria-labelledby="kitchen-title">
       <div className="kitchen-wall" aria-hidden="true"><span className="wall-rail"/><span className="hanging-leaf leaf-one">♧</span><span className="hanging-leaf leaf-two">♧</span></div>
       <h1 id="kitchen-title" className="sr-only">Your interactive digital kitchen</h1>
-      <ShareNearbyCTA items={localItems} kitchen/>
+      <ShareNearbyCTA items={localItems} kitchen droppedItem={shareCandidate} onDroppedItemHandled={()=>setShareCandidate(null)}/>
       <div className="kitchen-top"><ConsumptionZone disabled={!actionsEnabled}/><WasteMeter metrics={displayMetrics}/><TrashZone disabled={!actionsEnabled}/></div>
       <div className="kitchen-hint"><span>Grab a food and move it around your kitchen</span><button onClick={()=>{setFocusMode((value)=>!value);if(!focusMode)setBasket(localItems.slice(0,3))}}>{focusMode?"Show everything":"What should I use first?"}</button></div>
       <div className="kitchen-floor"><div className="appliance-slot fridge-slot"><FridgeZone items={zones.fridge} freezerItems={zones.freezer} {...zoneProps}/></div><div className="appliance-slot pantry-slot"><PantryZone items={zones.pantry} {...zoneProps}/></div><RescuePot basket={basket} onRemove={(id)=>setBasket((current)=>current.filter((item)=>item.id!==id))} onMakeMeal={makeMeal} disabled={!actionsEnabled}/></div>
