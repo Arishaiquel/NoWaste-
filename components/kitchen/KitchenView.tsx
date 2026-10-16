@@ -58,6 +58,7 @@ export function KitchenView({ items, metrics, actionsEnabled, guestDemo = false 
     else if(action==="pantry")void moveItem(item,"pantry");
     else if(action==="fridge")void moveItem(item,"refrigerator");
     else if(action==="rescue")addToPot(item);
+    else if(action==="share")router.push(`/community?food=${encodeURIComponent(item.normalized_name)}&category=${encodeURIComponent(item.food_category)}&quantity=${item.quantity}&unit=${encodeURIComponent(item.unit??"item")}&storage=${encodeURIComponent(item.storage_method)}&risk=${item.freshness.riskScore??""}`);
     else setDetailItem(item);
   }
   async function confirmDiscard(reason:string){if(!discarding)return;const item=discarding;try{const result=guestDemo?{price:item.price}:await updatePantryItem(item.id,"discarded",{discardReason:reason});setLocalItems((current)=>current.filter((entry)=>entry.id!==item.id));setBasket((current)=>current.filter((entry)=>entry.id!==item.id));addWasteMetric(result.price);setDiscarding(null);celebrate(`Waste logged${result.price?` · $${Number(result.price).toFixed(2)} discarded`:""}`);if(!guestDemo)router.refresh();}catch{celebrate("We couldn't log that. Please try again.")}}
