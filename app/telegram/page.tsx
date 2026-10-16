@@ -13,8 +13,10 @@ export default async function TelegramPage() {
         <p className="eyebrow">Telegram Bot</p>
         <h1 className="mt-4 text-5xl font-black leading-[.98] tracking-[-.045em] sm:text-6xl">Turn a receipt into your digital pantry.</h1>
         <p className="mt-6 max-w-xl text-lg leading-8 text-[#526259]">Open NoWaste! in Telegram, send a clear photo of your grocery receipt, and confirm the items the bot finds.</p>
-        <a href="/api/telegram/open" target="_blank" rel="noreferrer" className="button mt-8 inline-flex bg-[#164b35] text-white">Open NoWaste! on Telegram →</a>
-        {user ? linked ? <p className="mt-4 font-bold text-[#287557]">✓ Telegram is linked to this account.</p> : <TelegramLinkButton/> : <p className="mt-4 text-sm"><a href="/login" className="font-black text-[#164b35] underline">Sign in</a> to link Telegram and keep your pantry private.</p>}
+        {user && !linked
+          ? <TelegramLinkButton/>
+          : <a href="/api/telegram/open" target="_blank" rel="noreferrer" className="button mt-8 inline-flex bg-[#164b35] text-white">Open NoWaste! on Telegram →</a>}
+        {user ? linked ? <p className="mt-4 font-bold text-[#287557]">✓ Telegram is linked to this account.</p> : <p className="mt-4 text-sm text-[#68766e]">Opening the bot will connect it to your signed-in account.</p> : <p className="mt-4 text-sm"><a href="/login" className="font-black text-[#164b35] underline">Sign in</a> first if you want to connect the bot to your private pantry.</p>}
         <p className="mt-4 text-sm text-[#68766e]">The Telegram app or web version will open in a new tab.</p>
       </div>
 

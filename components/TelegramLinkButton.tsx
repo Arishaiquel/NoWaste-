@@ -11,5 +11,5 @@ export function TelegramLinkButton() {
     if (response.ok && data.url) window.location.href = data.url;
     else { setError(data.error ?? "Could not start linking"); setBusy(false); }
   }
-  return <div><button type="button" onClick={link} disabled={busy} className="button mt-4 bg-[#229ed9] text-white disabled:opacity-50">{busy ? "Opening Telegram…" : "Link my Telegram account"}</button>{error && <p role="alert" className="mt-2 text-sm text-[#a63328]">{error}</p>}</div>;
+  return <div><button type="button" onClick={link} disabled={busy} className="button mt-8 bg-[#164b35] text-white disabled:opacity-50">{busy ? "Opening Telegram…" : "Open NoWaste! on Telegram →"}</button>{error && <p role="alert" className="mt-2 text-sm text-[#a63328]">{error}</p>}</div>;
 }
