@@ -95,7 +95,7 @@ main { min-width: 0; }
 /* Interactive digital kitchen */
 body { background: #f4efe3; }
 .site-header { position: relative; z-index: 40; }
-body:has(.auth-page) .site-header { display: none; }
+body:has(.auth-page) .site-header, body:has(.landing-page) > .site-header { display: none; }
 .demo-strip { position: relative; z-index: 30; margin: 0 auto .7rem; max-width: 72rem; }
 .demo-strip .card { border: 0; border-radius: 1rem; background: #fffaf0cc; padding: .65rem 1rem; box-shadow: 0 8px 25px #4d3a2411; }
 .demo-strip .eyebrow { font-size: .58rem; }

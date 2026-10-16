@@ -44,6 +44,7 @@ export function AuthForm() {
       <p className="mt-3 text-center text-xs leading-5 text-[#7a857e]">No password needed. We&apos;ll email you a secure, one-time link.</p>
       {message && <p role={isError ? "alert" : "status"} className={`mt-4 rounded-xl px-4 py-3 text-sm ${isError ? "bg-[#fff0ed] text-[#a63328]" : "bg-[#edf5ef] text-[#287557]"}`}>{message}</p>}
     </form>
+    <div className="border-t border-[#164b3520] px-5 py-5 text-center sm:px-7"><p className="text-sm text-[#68766e]">Want to look around first?</p><a href="/api/demo/start" className="button mt-3 w-full border border-[#164b3540] bg-white text-[#164b35]">Try demo as guest →</a></div>
   </div>;
 }
 

@@ -1,2 +1,2 @@
 import { redirect } from "next/navigation";
-export default function Demo() { redirect("/dashboard"); }
+export default function Demo() { redirect("/api/demo/start"); }

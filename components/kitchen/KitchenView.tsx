@@ -21,7 +21,7 @@ import type { StorageMethod } from "@/types/pantry";
 
 type OutcomeAction = "consumed" | "frozen";
 
-export function KitchenView({ items, metrics, actionsEnabled }: { items: KitchenItemData[]; metrics: RescueMetrics; actionsEnabled: boolean }) {
+export function KitchenView({ items, metrics, actionsEnabled, guestDemo = false }: { items: KitchenItemData[]; metrics: RescueMetrics; actionsEnabled: boolean; guestDemo?: boolean }) {
   const router = useRouter();
   const [localItems,setLocalItems]=useState(items);
   const [displayMetrics,setDisplayMetrics]=useState(metrics);
@@ -42,12 +42,12 @@ export function KitchenView({ items, metrics, actionsEnabled }: { items: Kitchen
   function addRescueMetric(price:number|null){setDisplayMetrics((current)=>{const rescued=current.rescuedCount+1;const outcomes=rescued+current.discardedCount;return{...current,rescuedCount:rescued,rescuedValue:Math.round((current.rescuedValue+(price??0))*100)/100,rescueScore:outcomes?Math.round(rescued/outcomes*100):null}})}
   function addWasteMetric(price:number|null){setDisplayMetrics((current)=>{const discarded=current.discardedCount+1;const outcomes=current.rescuedCount+discarded;return{...current,discardedCount:discarded,wasteValue:Math.round((current.wasteValue+(price??0))*100)/100,rescueScore:outcomes?Math.round(current.rescuedCount/outcomes*100):null}})}
   async function completeOutcome(action:OutcomeAction,item:KitchenItemData){
-    try{const result=await updatePantryItem(item.id,action);if(action==="consumed"){setLocalItems((current)=>current.filter((entry)=>entry.id!==item.id));setBasket((current)=>current.filter((entry)=>entry.id!==item.id));addRescueMetric(result.price);celebrate(`✨ Rescued! ${item.normalized_name}${result.price?` · $${Number(result.price).toFixed(2)} of groceries used`:""}`)}else{setLocalItems((current)=>current.map((entry)=>entry.id===item.id?{...entry,storage_method:"freezer"}:entry));addRescueMetric(result.price);celebrate(`❄ Saved for later · ${item.normalized_name}`)}router.refresh();}
+    try{const result=guestDemo?{price:item.price}:await updatePantryItem(item.id,action);if(action==="consumed"){setLocalItems((current)=>current.filter((entry)=>entry.id!==item.id));setBasket((current)=>current.filter((entry)=>entry.id!==item.id));addRescueMetric(result.price);celebrate(`✨ Rescued! ${item.normalized_name}${result.price?` · $${Number(result.price).toFixed(2)} of groceries used`:""}`)}else{setLocalItems((current)=>current.map((entry)=>entry.id===item.id?{...entry,storage_method:"freezer"}:entry));addRescueMetric(result.price);celebrate(`❄ Saved for later · ${item.normalized_name}`)}if(!guestDemo)router.refresh();}
     catch{celebrate("We couldn't update that item. Please try again.")}
   }
   async function moveItem(item:KitchenItemData,storageMethod:StorageMethod){
     if(item.storage_method===storageMethod)return;
-    try{await updatePantryItem(item.id,"storage",{storageMethod});setLocalItems((current)=>current.map((entry)=>entry.id===item.id?{...entry,storage_method:storageMethod}:entry));celebrate(`${item.normalized_name} moved to the ${storageMethod==="refrigerator"?"fridge":storageMethod}.`);router.refresh();}
+    try{if(!guestDemo)await updatePantryItem(item.id,"storage",{storageMethod});setLocalItems((current)=>current.map((entry)=>entry.id===item.id?{...entry,storage_method:storageMethod}:entry));celebrate(`${item.normalized_name} moved to the ${storageMethod==="refrigerator"?"fridge":storageMethod}.`);if(!guestDemo)router.refresh();}
     catch{celebrate("We couldn't move that item. Please try again.")}
   }
   function addToPot(item:KitchenItemData){setBasket((current)=>current.some((entry)=>entry.id===item.id)?current:[...current,item]);celebrate(`${item.normalized_name} added to the Rescue Pot.`)}
@@ -60,7 +60,7 @@ export function KitchenView({ items, metrics, actionsEnabled }: { items: Kitchen
     else if(action==="rescue")addToPot(item);
     else setDetailItem(item);
   }
-  async function confirmDiscard(reason:string){if(!discarding)return;const item=discarding;try{const result=await updatePantryItem(item.id,"discarded",{discardReason:reason});setLocalItems((current)=>current.filter((entry)=>entry.id!==item.id));setBasket((current)=>current.filter((entry)=>entry.id!==item.id));addWasteMetric(result.price);setDiscarding(null);celebrate(`Waste logged${result.price?` · $${Number(result.price).toFixed(2)} discarded`:""}`);router.refresh();}catch{celebrate("We couldn't log that. Please try again.")}}
+  async function confirmDiscard(reason:string){if(!discarding)return;const item=discarding;try{const result=guestDemo?{price:item.price}:await updatePantryItem(item.id,"discarded",{discardReason:reason});setLocalItems((current)=>current.filter((entry)=>entry.id!==item.id));setBasket((current)=>current.filter((entry)=>entry.id!==item.id));addWasteMetric(result.price);setDiscarding(null);celebrate(`Waste logged${result.price?` · $${Number(result.price).toFixed(2)} discarded`:""}`);if(!guestDemo)router.refresh();}catch{celebrate("We couldn't log that. Please try again.")}}
   function makeMeal(){window.open("/api/telegram/open?command=rescue","_blank","noopener,noreferrer");celebrate(`Recipe request started with ${basket.length} ingredient${basket.length===1?"":"s"}.`)}
   function dragStart(event:DragStartEvent){setActive(localItems.find((item)=>item.id===String(event.active.id))??null)}
   function dragEnd(event:DragEndEvent){const item=active;setActive(null);if(!item||!event.over)return;const target=String(event.over.id);if(target==="consumed")void completeOutcome("consumed",item);else if(target==="discarded")setDiscarding(item);else if(target==="fridge")void moveItem(item,"refrigerator");else if(target==="freezer")void completeOutcome("frozen",item);else if(target==="pantry")void moveItem(item,"pantry");else if(target==="rescue")addToPot(item)}
