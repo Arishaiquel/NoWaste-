@@ -12,7 +12,7 @@ import { requireAuthUser } from "@/lib/auth/server";
 import { linkedTelegramUserId } from "@/lib/auth/linkedUser";
 import { redirect } from "next/navigation";
 import { isGuestDemo } from "@/lib/guestDemo";
-import { guestBehaviorPurchases } from "@/lib/guestDemoData";
+import { GuestCoachExperience } from "@/components/GuestCoachExperience";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +38,7 @@ interface PantryRow {
 export default async function CoachPage() {
   const authUser = await requireAuthUser();
   const guest = !authUser && await isGuestDemo();
-  if (guest) return <main className="mx-auto max-w-6xl px-5 pb-10 pt-6"><header className="mb-2 pt-6"><p className="eyebrow">Guest demo · Food waste coach</p><h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Learn from what leaves your kitchen.</h1><p className="mt-4 max-w-2xl text-[#526259]">Explore sample insights generated from realistic pantry outcomes.</p></header><WastePatterns purchases={guestBehaviorPurchases}/><PurchaseCoach purchases={guestBehaviorPurchases}/></main>;
+  if (guest) return <main className="mx-auto max-w-6xl px-5 pb-10 pt-6"><header className="mb-2 pt-6"><p className="eyebrow">Guest demo · Demo data</p><h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Learn from what leaves your kitchen.</h1><p className="mt-4 max-w-2xl text-[#526259]">The coach uses deterministic purchase history and outcome math. Every number below traces back to a recorded event.</p></header><GuestCoachExperience/></main>;
   if (!authUser) redirect("/login");
   const linkedUserId = await linkedTelegramUserId(authUser.id);
   if (!linkedUserId) return <main className="mx-auto max-w-4xl px-5 py-16"><div className="card p-8"><h1 className="text-3xl font-black">Link Telegram to build your Coach history.</h1><p className="mt-3 text-[#526259]">Once linked, consumed, frozen, and discarded items become your private recommendation history.</p><a href="/telegram" className="button mt-6 bg-[#164b35] text-white">Link Telegram</a></div></main>;

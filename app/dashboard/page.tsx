@@ -11,7 +11,7 @@ import { requireAuthUser } from "@/lib/auth/server";
 import { linkedTelegramUserId } from "@/lib/auth/linkedUser";
 import { redirect } from "next/navigation";
 import { isGuestDemo } from "@/lib/guestDemo";
-import { guestKitchenItems, guestMetrics } from "@/lib/guestDemoData";
+import { GuestDemoDashboard } from "@/components/GuestDemoDashboard";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +28,7 @@ interface DashboardRow {
 export default async function Dashboard() {
   const authUser = await requireAuthUser();
   const guest = !authUser && await isGuestDemo();
-  if (guest) return <main className="mx-auto max-w-[1500px] px-3 pb-10 sm:px-5"><div className="demo-strip"><div className="card flex flex-wrap items-center justify-between gap-3"><div><p className="eyebrow">Guest demo</p><p className="mt-1 text-sm text-[#526259]">Explore freely—your demo changes stay temporary.</p></div><a href="/login" className="button bg-[#164b35] px-4 py-2 text-sm text-white">Make an account</a></div></div><KitchenView items={guestKitchenItems()} metrics={guestMetrics} actionsEnabled guestDemo/><div className="mx-auto mt-8 max-w-6xl"><RescueProgress metrics={guestMetrics}/></div></main>;
+  if (guest) return <main className="mx-auto max-w-[1500px] px-3 pb-10 sm:px-5"><GuestDemoDashboard/></main>;
   if (!authUser) redirect("/login");
   const userId = await linkedTelegramUserId(authUser.id);
   if (!userId) return <main className="mx-auto max-w-4xl px-5 py-16"><div className="card p-8"><span className="text-3xl">✈️</span><h1 className="mt-4 text-3xl font-black">Link Telegram to open your kitchen.</h1><p className="mt-3 text-[#526259]">Your Telegram identity connects receipt uploads and pantry records to this signed-in account.</p><a href="/telegram" className="button mt-6 bg-[#164b35] text-white">Link Telegram</a></div></main>;

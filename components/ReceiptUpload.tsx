@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { ReceiptExtraction } from "@/schemas/receipt";
+import { writeDemoScenario } from "@/lib/demoScenario";
 
 type Result = { receiptId: string; purchaseDate: string; extraction: ReceiptExtraction };
 export function ReceiptUpload({ guestDemo = false }: { guestDemo?: boolean }) {
@@ -25,9 +26,10 @@ export function ReceiptUpload({ guestDemo = false }: { guestDemo?: boolean }) {
     event.preventDefault(); setBusy(true); setError(""); setDone(false);
     if (guestDemo) {
       setResult({ receiptId: "guest-demo", purchaseDate: new Date().toISOString().slice(0, 10), extraction: { store_name: "Demo Grocer", purchase_date: new Date().toISOString().slice(0, 10), currency: "SGD", items: [
-        { raw_receipt_name: "BABY SPINACH", normalized_name: "Baby spinach", brand: null, quantity: 1, unit: "pack", price: 3.8, food_category: "leafy_vegetables", perishable: true, confidence: .97, needs_review: false },
-        { raw_receipt_name: "CHKN BRST", normalized_name: "Chicken breast", brand: null, quantity: 1, unit: "pack", price: 8.9, food_category: "raw_poultry", perishable: true, confidence: .88, needs_review: false },
-        { raw_receipt_name: "FULL CRM MILK", normalized_name: "Full cream milk", brand: null, quantity: 1, unit: "bottle", price: 4.2, food_category: "dairy", perishable: true, confidence: .93, needs_review: false },
+        { raw_receipt_name: "BNNA 7PK", normalized_name: "Bananas", brand: null, quantity: 7, unit: "items", price: 3.4, food_category: "fruit", perishable: true, confidence: .97, needs_review: false },
+        { raw_receipt_name: "BABY SPNCH", normalized_name: "Baby Spinach", brand: null, quantity: 1, unit: "bag", price: 3.8, food_category: "leafy_vegetables", perishable: true, confidence: .97, needs_review: false },
+        { raw_receipt_name: "WHLML BRD", normalized_name: "Bread", brand: null, quantity: 1, unit: "loaf", price: 3.1, food_category: "bread", perishable: true, confidence: .94, needs_review: false },
+        { raw_receipt_name: "OAT MLK 1L", normalized_name: "Oat Milk", brand: null, quantity: 1, unit: "carton", price: 4.2, food_category: "dairy", perishable: true, confidence: .95, needs_review: false },
       ] } });
       setBusy(false); return;
     }
@@ -38,7 +40,7 @@ export function ReceiptUpload({ guestDemo = false }: { guestDemo?: boolean }) {
   }
   async function confirm() {
     if (!result) return; setBusy(true); setError("");
-    if (guestDemo) { setDone(true); setResult(null); setBusy(false); return; }
+    if (guestDemo) { writeDemoScenario({receiptConfirmed:true});setDone(true); setResult(null); setBusy(false); return; }
     const response = await fetch("/api/receipts/confirm", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ receiptId: result.receiptId }) });
     const data = await response.json().catch(()=>({})) as { error?: string };
     if (response.ok) { setDone(true); setResult(null); } else setError(data.error ?? "Confirmation failed"); setBusy(false);
@@ -49,7 +51,7 @@ export function ReceiptUpload({ guestDemo = false }: { guestDemo?: boolean }) {
       {cameraOpen&&<div className="mt-5 overflow-hidden rounded-2xl bg-black p-3"><video ref={videoRef} autoPlay playsInline muted className="aspect-[4/3] w-full rounded-xl object-cover"/><div className="mt-3 flex justify-center gap-3"><button type="button" onClick={closeCamera} className="button bg-white/15 text-white">Cancel</button><button type="button" onClick={capturePhoto} className="button bg-white text-[#164b35]">Take photo</button></div></div>}
       {capturedPreview&&<div className="mt-5"><Image src={capturedPreview} alt="Captured receipt preview" width={1200} height={900} unoptimized className="max-h-[28rem] w-full rounded-2xl bg-black object-contain"/><button type="button" onClick={()=>{setCapturedFile(null);setCapturedPreview("")}} className="button mt-3 border">Retake or choose another</button></div>}
       <canvas ref={canvasRef} className="hidden"/><button disabled={busy||cameraOpen||(!capturedFile&&!selectedFile&&!guestDemo)} className="button mt-5 bg-[#164b35] text-white disabled:opacity-50">{busy ? "Reading receipt…" : "Review receipt"}</button></form>}
-    {result && <div className="card p-6"><p className="eyebrow">Review before adding</p><h2 className="mt-2 text-2xl font-black">{result.extraction.items.length} groceries found</h2><p className="mt-2 text-sm text-[#68766e]">Purchase date: {result.purchaseDate}</p><ul className="mt-5 divide-y">{result.extraction.items.map((item,index)=><li key={`${item.raw_receipt_name}-${index}`} className="flex items-center justify-between gap-3 py-3"><span><b>{item.normalized_name}</b><small className="block text-[#68766e]">Receipt: {item.raw_receipt_name}</small></span>{(item.needs_review||item.confidence<.75)&&<span className="rounded-full bg-[#fff0d7] px-2 py-1 text-xs font-black">Review</span>}</li>)}</ul><div className="mt-5 flex gap-3"><button onClick={()=>setResult(null)} className="button border">Cancel</button><button onClick={confirm} disabled={busy} className="button bg-[#164b35] text-white disabled:opacity-50">{busy ? "Adding…" : "Add to pantry"}</button></div></div>}
+    {result && <div className="card p-6"><p className="eyebrow">{guestDemo?"Demo extraction loaded":"Review before adding"}</p><h2 className="mt-2 text-2xl font-black">{result.extraction.items.length} groceries found</h2><p className="mt-2 rounded-xl bg-[#edf5ef] p-3 text-sm font-bold text-[#287557]">🧠 AI interpreted receipt text and normalized grocery names.</p><p className="mt-2 text-sm text-[#68766e]">Purchase date: {result.purchaseDate}</p><ul className="mt-5 divide-y">{result.extraction.items.map((item,index)=><li key={`${item.raw_receipt_name}-${index}`} className="flex items-center justify-between gap-3 py-3"><span><small className="block text-[#68766e]">Raw: {item.raw_receipt_name}</small><b>Normalized: {item.normalized_name}</b></span>{(item.needs_review||item.confidence<.75)&&<span className="rounded-full bg-[#fff0d7] px-2 py-1 text-xs font-black">Review</span>}</li>)}</ul><div className="mt-5 flex gap-3"><button onClick={()=>setResult(null)} className="button border">Cancel</button><button onClick={confirm} disabled={busy} className="button bg-[#164b35] text-white disabled:opacity-50">{busy ? "Adding…" : "Confirm & add to pantry"}</button></div></div>}
     {done && <div className="card p-6"><h2 className="text-2xl font-black">Groceries added ✓</h2><p className="mt-2 text-[#526259]">{guestDemo ? "Demo complete—guest changes are temporary." : "Your receipt is now in your private kitchen."}</p><a href="/dashboard" className="button mt-5 bg-[#164b35] text-white">Open kitchen</a></div>}
     {error && <p role="alert" className="mt-4 font-bold text-[#a63328]">{error}</p>}
   </div>;

@@ -6,9 +6,11 @@ const reasonLabels: Record<DiscardReason, string> = { forgot_about_it: "Forgot a
 export function WastePatterns({ purchases }: { purchases: BehaviorPurchase[] }) {
   const categories = [...new Set(purchases.map((item) => item.foodCategory))].map((category) => ({ category, ...calculateCategoryWasteRate(purchases, category) })).filter((item) => item.rate !== null).sort((a, b) => b.rate! - a.rate!);
   const topReason = calculateMostCommonDiscardReason(purchases);
+  const banana=purchases.filter(x=>x.normalizedName.toLowerCase()==="bananas");const bananaDiscards=banana.filter(x=>x.discardedQuantity>0).length;
   return <section className="intelligence-section">
     <div className="flex items-center justify-between gap-3"><div><p className="eyebrow">Your patterns</p><h2 className="mt-2 text-3xl font-black tracking-tight">Small signals. Smarter choices.</h2></div></div>
     <div className="pattern-grid">
+      {banana.length>=3&&<article><span>Behavior insight</span><strong>You frequently overbuy bananas.</strong><small>You bought bananas {banana.length} times recently and discarded part of them in {bananaDiscards} purchases.</small></article>}
       <article><span>Most wasted category</span><strong>{categories[0] ? categories[0].category.replaceAll("_", " ") : "Not enough history"}</strong>{categories[0] && <small>{Math.round(categories[0].rate! * 100)}% {categories[0].method === "events" ? "event-based" : "quantity-based"} waste rate</small>}</article>
       <article><span>Most common discard reason</span><strong>{topReason ? reasonLabels[topReason] : "Not enough history"}</strong><small>From structured discard reasons</small></article>
     </div>
