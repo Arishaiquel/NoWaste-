@@ -133,6 +133,7 @@ OPENAI_API_KEY=                 # server-only
 OPENAI_MODEL=                   # a vision-capable Responses API model
 OPENAI_BASE_URL=                # optional OpenAI-compatible provider endpoint
 TELEGRAM_BOT_TOKEN=             # server-only
+TELEGRAM_BOT_USERNAME=groceryfoodbot # public Telegram username, without @
 TELEGRAM_WEBHOOK_SECRET=        # random URL-safe secret, server-only
 NEXT_PUBLIC_APP_URL=            # HTTPS deployment URL
 NEXT_PUBLIC_SUPABASE_URL=
