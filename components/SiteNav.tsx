@@ -39,6 +39,6 @@ export function SiteNav({ guest, signedIn }: { guest: boolean; signedIn: boolean
       </div>
     </details>
     {guest && <span className="hand-demo-pill">Demo</span>}
-    {signedIn ? <details className="group relative"><summary className="hand-profile cursor-pointer list-none [&::-webkit-details-marker]:hidden" aria-label="Account menu"><ProfileIcon/><span aria-hidden="true">⌄</span></summary><div className="hand-menu absolute right-0 z-50 mt-2 min-w-32 border border-[#164b3530] bg-[#fffaf0] p-2 shadow-[0_12px_30px_rgba(22,75,53,.14)]"><form action="/auth/signout" method="post"><button className="w-full px-3 py-2 text-left text-[#526259] hover:bg-[#edf5ef] hover:text-[#164b35]">Sign out</button></form></div></details> : !guest && <Link href="/login" className="hand-profile" aria-label="Sign in"><ProfileIcon/></Link>}
+    {signedIn ? <details className="group relative"><summary className="hand-profile cursor-pointer list-none [&::-webkit-details-marker]:hidden" aria-label="Account menu"><ProfileIcon/><span aria-hidden="true">⌄</span></summary><div className="hand-menu absolute right-0 z-50 mt-2 min-w-32 border border-[#164b3530] bg-[#fffaf0] p-2 shadow-[0_12px_30px_rgba(22,75,53,.14)]"><form action="/auth/signout" method="post"><button className="w-full px-3 py-2 text-left text-[#526259] hover:bg-[#edf5ef] hover:text-[#164b35]">Sign out</button></form></div></details> : <Link href="/login" className="hand-profile" aria-label="Sign in"><ProfileIcon/></Link>}
   </nav>;
 }
