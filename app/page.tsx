@@ -3,9 +3,8 @@ import Link from "next/link";
 
 export default function Home() {
   return <main className="landing-page min-h-screen">
-    <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-6">
+    <header className="mx-auto flex max-w-6xl items-center px-5 py-6">
       <Link href="/" className="flex items-center gap-3 text-2xl font-black text-[#164b35]"><span className="grid size-12 place-items-center overflow-hidden rounded-2xl bg-[#e8f3d2]"><Image src="/nowaste-vegetable-logo.png" alt="" width={48} height={48} className="size-full object-contain" priority/></span>NoWaste!</Link>
-      <Link href="/login" className="button border border-[#164b3540] bg-white px-5 py-2.5 text-[#164b35]">Sign in</Link>
     </header>
     <section className="mx-auto grid max-w-6xl items-center gap-12 px-5 pb-20 pt-10 lg:grid-cols-[1.08fr_.92fr] lg:pt-16">
       <div><p className="eyebrow mb-5">A closed-loop food-waste intelligence system</p><h1 className="max-w-3xl text-5xl font-black leading-[.96] tracking-[-.055em] sm:text-7xl">Know what to use.<br/><span className="text-[#287557]">Learn what to buy.</span><br/>Rescue what&apos;s left.</h1>
