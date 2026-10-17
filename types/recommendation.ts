@@ -14,6 +14,7 @@ export interface PurchaseRecommendation {
   resolvedPurchases: number;
   averagePurchased: number;
   averageConsumed: number;
+  weightedAverageConsumed: number;
   averageDiscarded: number;
   wasteRate: WasteRateResult;
   recentTrend: "improving" | "worsening" | "steady" | "not_enough_history";

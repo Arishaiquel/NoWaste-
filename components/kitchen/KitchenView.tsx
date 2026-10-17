@@ -81,7 +81,7 @@ export function KitchenView({ items, metrics, actionsEnabled, guestDemo = false 
       <div className="kitchen-floor"><div className="appliance-slot fridge-slot"><FridgeZone items={zones.fridge} freezerItems={zones.freezer} {...zoneProps}/></div><div className="appliance-slot pantry-slot"><PantryZone items={zones.pantry} {...zoneProps}/></div><RescuePot basket={basket} onRemove={(id)=>setBasket((current)=>current.filter((item)=>item.id!==id))} onMakeMeal={makeMeal} disabled={!actionsEnabled}/></div>
       <CounterZone items={zones.counter} {...zoneProps}/>
       {!localItems.length&&<div className="empty-kitchen"><span>🧺</span><b>Your kitchen is ready for groceries.</b><small>Send a receipt to the Telegram bot to stock the shelves.</small></div>}
-      <div className="mobile-action-note">Tap any food for Ate it, Discard, Freeze, Move, Cook, and Edit.</div>
+      <div className="mobile-action-note">Tap any food to cook, freeze, share nearby, or record an outcome.</div>
     </section>
     <DragOverlay dropAnimation={{duration:220,easing:"cubic-bezier(.2,.8,.2,1)"}}>{active?<div className="drag-overlay-wrap"><FoodObject item={active} overlay/></div>:null}</DragOverlay>
     <FoodActionSheet item={sheetItem} enabled={actionsEnabled} onClose={closeSheet} onAction={handleAction}/>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { BehaviorPurchase } from "@/types/behavior";
-import { StatisticalPurchaseModel, confidenceForHistory, roundPracticalQuantity } from "@/lib/purchaseCoach";
+import { StatisticalPurchaseModel, buildPurchaseRecommendations, confidenceForHistory, roundPracticalQuantity } from "@/lib/purchaseCoach";
+import { demoBananaHistory } from "@/lib/demoScenario";
 
 const history = (consumed: number[]): BehaviorPurchase[] => consumed.map((quantity, index) => ({ id: String(index), normalizedName: "Bananas", foodCategory: "fruit", purchaseQuantity: 7, unit: "units", purchaseDate: `2026-0${index + 1}-01`, storageMethod: "counter", priceValue: 3, consumedQuantity: quantity, discardedQuantity: 7 - quantity, frozenQuantity: 0, consumedAt: `2026-0${index + 1}-05T12:00:00Z`, discardedAt: quantity < 7 ? `2026-0${index + 1}-07T12:00:00Z` : null, frozenAt: null, discardReason: quantity < 7 ? "bought_too_much" : null, freshnessRiskAtOutcome: 90 }));
 
@@ -18,7 +19,19 @@ describe("statistical purchase coach", () => {
     expect(result.averagePurchased).toBe(7);
     expect(result.averageConsumed).toBe(4.8);
     expect(result.averageDiscarded).toBe(2.3);
+    expect(result.weightedAverageConsumed).toBeGreaterThan(4.7);
     expect(result.confidence).toBe("Low");
+  });
+
+  it("recalculates the demo recommendation from a newly recorded outcome", () => {
+    const before = buildPurchaseRecommendations(demoBananaHistory(false))[0];
+    const after = buildPurchaseRecommendations(demoBananaHistory(true))[0];
+    expect(Math.round(before.wasteRate.rate! * 100)).toBe(36);
+    expect(Math.round(after.wasteRate.rate! * 100)).toBe(30);
+    expect(before.recommendedQuantity).toBe(5);
+    expect(after.recommendedQuantity).toBe(5);
+    expect(after.resolvedPurchases).toBe(before.resolvedPurchases + 1);
+    expect(after.recentPurchases[0].id).toBe("banana-5");
   });
 
   it("uses deterministic confidence tiers and sensible unit rounding", () => {

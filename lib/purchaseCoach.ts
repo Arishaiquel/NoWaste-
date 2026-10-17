@@ -53,12 +53,13 @@ export class StatisticalPurchaseModel implements PurchaseRecommendationModel {
     const averagePurchased = calculateAveragePurchasedQuantity(history);
     const averageConsumed = calculateAverageConsumedQuantity(history);
     const averageDiscarded = calculateAverageDiscardedQuantity(history);
-    const recommendation = count >= MIN_HISTORY_FOR_PERSONALIZATION ? roundPracticalQuantity(weightedConsumption(history), history[0]?.unit ?? null) : null;
+    const weightedAverageConsumed = weightedConsumption(history);
+    const recommendation = count >= MIN_HISTORY_FOR_PERSONALIZATION ? roundPracticalQuantity(weightedAverageConsumed, history[0]?.unit ?? null) : null;
     const unit = history[0]?.unit ?? null;
     const explanation = count < MIN_HISTORY_FOR_PERSONALIZATION
       ? [`Only ${count} resolved purchase${count === 1 ? "" : "s"} recorded.`, "Keep tracking this item and NoWaste! will personalize recommendations after a few grocery cycles."]
-      : [`You bought ${normalizedName.toLowerCase()} ${count} times recently.`, `Average purchased: ${rounded(averagePurchased)}${unit ? ` ${unit}` : ""}. Average consumed: ${rounded(averageConsumed)}${unit ? ` ${unit}` : ""}. Average discarded: ${rounded(averageDiscarded)}${unit ? ` ${unit}` : ""}.`, "This estimate is a recency-weighted average of your recorded consumption."];
-    return { normalizedName, foodCategory: history[0]?.foodCategory ?? "other", unit, resolvedPurchases: count, averagePurchased: rounded(averagePurchased), averageConsumed: rounded(averageConsumed), averageDiscarded: rounded(averageDiscarded), wasteRate: calculateWasteRate(history), recentTrend: recentTrend(history), recommendedQuantity: recommendation, confidence, explanation, recentPurchases: history.slice(0, 6) };
+      : [`Based on your recent ${normalizedName.toLowerCase()} purchases, you usually consume around ${Math.floor(averageConsumed)}–${Math.ceil(averageConsumed)} before the rest are discarded.`, "The recommendation uses a recency-weighted average, so newer outcomes count slightly more."];
+    return { normalizedName, foodCategory: history[0]?.foodCategory ?? "other", unit, resolvedPurchases: count, averagePurchased: rounded(averagePurchased), averageConsumed: rounded(averageConsumed), weightedAverageConsumed: rounded(weightedAverageConsumed), averageDiscarded: rounded(averageDiscarded), wasteRate: calculateWasteRate(history), recentTrend: recentTrend(history), recommendedQuantity: recommendation, confidence, explanation, recentPurchases: history.slice(0, 6) };
   }
 }
 
