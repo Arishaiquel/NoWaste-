@@ -11,7 +11,7 @@ export default async function LoginPage() {
       <span className="grid size-24 place-items-center overflow-hidden rounded-[1.75rem] bg-[#e8f3d2] shadow-[0_14px_35px_#164b3520] sm:size-28"><Image src="/nowaste-vegetable-logo.png" alt="NoWaste logo" width={112} height={112} className="size-full object-contain" priority/></span>
       <p className="mt-4 text-4xl font-black tracking-[-.045em] text-[#164b35] sm:text-5xl">NoWaste!</p>
       <h1 className="mt-7 text-3xl font-black tracking-tight sm:text-4xl">Your kitchen, kept private.</h1>
-      <p className="mt-3 max-w-md text-base leading-7 text-[#526259]">Make a new account or sign in to an existing one. We use secure email links, so there is no password to remember.</p>
+      <p className="mt-3 max-w-md text-base leading-7 text-[#526259]">Make a new account or sign in securely with Google. No password or email link needed.</p>
     </div>
     <AuthForm/>
   </div></main>;
