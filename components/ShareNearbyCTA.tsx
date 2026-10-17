@@ -35,9 +35,9 @@ export function ShareNearbyCTA({ items, kitchen = false, droppedItem = null, onD
 
   return <>
     <section ref={setNodeRef} className={kitchen?"relative z-10 mx-auto max-w-4xl px-3 pt-5 sm:px-6":"mx-auto mt-8 max-w-6xl"}>
-      <button onClick={()=>setOpen(true)} className={`group flex w-full items-center justify-between gap-5 border bg-[#edf5ef] text-left shadow-[0_12px_35px_rgba(22,75,53,.08)] transition hover:-translate-y-0.5 hover:border-[#287557] hover:shadow-[0_16px_40px_rgba(22,75,53,.13)] ${isOver?"scale-[1.02] border-[#164b35] ring-4 ring-[#d9f15b]":"border-[#28755740]"} ${kitchen?"rounded-2xl p-4":"rounded-3xl p-5 sm:p-6"}`}>
-        <span><span className="block text-xl font-black text-[#164b35] sm:text-2xl">🤝 Share Nearby</span><span className="mt-1 block text-sm leading-6 text-[#526259] sm:text-base">Have food you won&apos;t use? Offer it to someone nearby before it goes to waste.</span></span>
-        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-[#164b35] text-xl text-white transition group-hover:translate-x-1" aria-hidden="true">→</span>
+      <button onClick={()=>setOpen(true)} className={`group relative flex w-full items-center justify-center border bg-[#edf5ef] text-center shadow-[0_12px_35px_rgba(22,75,53,.08)] transition hover:-translate-y-0.5 hover:border-[#287557] hover:shadow-[0_16px_40px_rgba(22,75,53,.13)] ${isOver?"scale-[1.02] border-[#164b35] ring-4 ring-[#d9f15b]":"border-[#28755740]"} ${kitchen?"rounded-2xl p-4":"rounded-3xl p-5 sm:p-6"}`}>
+        <span className="px-10 sm:px-14"><span className="block text-xl font-black text-[#164b35] sm:text-2xl">📍 Share Nearby</span><span className="mt-1 block text-sm leading-6 text-[#526259] sm:text-base">Have food you won&apos;t use? Offer it to someone nearby before it goes to waste.</span></span>
+        <span className="absolute right-4 grid size-11 shrink-0 place-items-center rounded-full bg-[#164b35] text-xl text-white transition group-hover:translate-x-1 sm:right-5" aria-hidden="true">→</span>
       </button>
     </section>
     {picker}
